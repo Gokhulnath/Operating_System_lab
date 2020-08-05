@@ -1,0 +1,277 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct pro{
+	char pid[10];
+	float at,bt,tat,wt;
+}process;
+process * pread(int n)
+{
+	process *obj=malloc(sizeof(process)*n);
+	for(int i=0;i<n;++i)
+	{
+		printf("Enter Process ID: ");
+		scanf(" %[^\n]",obj[i].pid);
+		printf("Enter Arrival time: ");
+		scanf("%f",&obj[i].at);
+		printf("Enter Burst time: ");
+		scanf("%f",&obj[i].bt);
+		printf("\n\n");
+	}
+	return obj;
+}
+void display(process *obj,int n)
+{
+	printf("-------------------------------------------------------------------------------\n");
+	printf("Process ID\tArrival time\tBurst time\tTurnaround time\tWaiting time\n");
+	printf("-------------------------------------------------------------------------------\n");
+	for (int i = 0; i < n; ++i)
+		printf("%s\t\t%.2f\t\t%.2f\t\t%.2f\t\t%.2f\n\n",obj[i].pid,obj[i].at,obj[i].bt,obj[i].tat,obj[i].wt );
+}
+
+void fcfs(process *obj,int n)
+{
+	float avgwt=0,avgtat=0;
+	avgwt=obj[0].wt=0;
+	avgtat=obj[0].tat=obj[0].bt+obj[0].wt;
+	for (int i = 1; i < n; ++i)
+	{
+		obj[i].wt=obj[i-1].wt+obj[i-1].bt;
+		obj[i].tat=obj[i].bt+obj[i].wt;
+		avgtat+=obj[i].tat;
+		avgwt+=obj[i].wt;
+	}
+	avgtat/=n;
+	avgwt/=n;
+	display(obj,n);
+	printf("\n\t\t\t\tAverage\t\t%.2f\t\t%.2f\n",avgtat,avgwt);
+
+}
+void sort(process *obj,int n)
+{
+	process temp;
+	int small,pos;
+	for(int i=0;i<n-1;++i)
+	{
+		pos=i;
+		small=obj[i].bt;
+		for(int j=i+1;j<n;++j)
+			if(small>obj[j].bt)
+			{
+				pos=j;
+				small=obj[j].bt;
+			}
+		if(pos!=i)
+		{
+			temp=obj[i];
+			obj[i]=obj[pos];
+			obj[pos]=temp;
+		}
+	}
+}
+void sjf(process *obj,int n)
+{
+	sort(obj,n);
+	float avgwt=0,avgtat=0;
+	avgwt=obj[0].wt=0;
+	avgtat=obj[0].tat=obj[0].bt+obj[0].wt;
+	for (int i = 1; i < n; ++i)
+	{
+		obj[i].wt=obj[i-1].wt+obj[i-1].bt;
+		obj[i].tat=obj[i].bt+obj[i].wt;
+		avgtat+=obj[i].tat;
+		avgwt+=obj[i].wt;
+	}
+	avgtat/=n;
+	avgwt/=n;
+	display(obj,n);
+	printf("\n\t\t\t\tAverage\t\t%.2f\t\t%.2f\n",avgtat,avgwt);
+}
+void srtf(process *obj,int n)
+{
+	float rt[n],avgtat=0,avgwt=0;
+	int completed=0,lap=0,min=9999,small=0,ft;
+	int flag=0;
+	for (int i = 0; i < n; ++i)
+		rt[i]=obj[i].bt;
+	while(completed!=n)
+	{
+		for (int i = 0; i < n; ++i)
+		{
+			if((obj[i].at <= lap) && (rt[i]<min) && rt[i]>0)
+			{
+				min=rt[i];
+				small=i;
+				flag=1;
+			}
+		}
+		if(flag==0)
+		{
+			lap++;
+			continue;
+		}
+		rt[small]--;
+		min=rt[small];
+		if(min==0)
+			min=9999;
+		if(rt[small]==0)
+		{
+			completed++;
+			flag=0;
+			obj[small].wt=(lap+1)-obj[small].bt-obj[small].at;
+			if(obj[small].wt<0)
+				obj[small].wt=0;
+		}
+		lap++;
+	}
+
+	for (int i = 0; i < n; ++i)
+	{
+		obj[i].tat=obj[i].bt+obj[i].wt;
+		avgwt+=obj[i].wt;
+		avgtat+=obj[i].tat;
+	}
+	avgtat/=n;
+	avgwt/=n;
+	display(obj,n);
+	printf("\n\t\t\t\tAverage\t\t%.2f\t\t%.2f\n",avgtat,avgwt);
+
+}
+int main()
+{
+	char op;
+	int n;
+	do
+	{
+		int ch;
+		process * obj;
+		printf("MENU\n1.FCFS\n2.SJF\n3.EXIT\nEnter your choice: ");
+		scanf("%d",&ch);
+		switch(ch)
+		{
+			case 1: printf("FCFS CPU Scheduler\n");
+					printf("Enter Number of Processes: ");
+					scanf("%d",&n);
+					obj=pread(n);
+					fcfs(obj,n);
+					break;
+			case 2:	printf("SJF CPU Scheduler\n");
+					int a;
+					printf("1. non pre-emptive SJF\n2. pre-emptive SJF\nEnter your choice: ");
+					scanf("%d",&a);
+					printf("Enter Number of Processes: ");
+					scanf("%d",&n);
+					obj=pread(n);
+					if(a==1)
+						sjf(obj,n);
+					else
+						srtf(obj,n);
+					break;
+			case 3: exit(0);
+
+		}
+	} while (op=='y'||op=='Y');
+	return 0;
+}
+
+
+
+//*SAMPLE OUTPUT->
+
+gokhul@ubuntu:~/Desktop$ gcc fcfs-sjf.c -o fcfs-sjf
+gokhul@ubuntu:~/Desktop$ ./fcfs-sjf
+MENU
+1.FCFS
+2.SJF
+3.EXIT
+Enter your choice: 1
+FCFS CPU Scheduler
+Enter Number of Processes: 3
+Enter Process ID: 1234
+Enter Arrival time: 3
+Enter Burst time: 4
+
+
+Enter Process ID: 5678
+Enter Arrival time: 2
+Enter Burst time: 5
+
+
+Enter Process ID: 9101
+Enter Arrival time: 4
+Enter Burst time: 6
+
+
+-------------------------------------------------------------------------------
+Process ID	Arrival time	Burst time	Turnaround time	Waiting time
+-------------------------------------------------------------------------------
+1234		3.00		4.00		4.00		0.00
+
+5678		2.00		5.00		9.00		4.00
+
+9101		4.00		6.00		15.00		9.00
+
+
+				Average		9.33		4.33
+gokhul@ubuntu:~/Desktop$ ./fcfs-sjf
+MENU
+1.FCFS
+2.SJF
+3.EXIT
+Enter your choice: 2
+SJF CPU Scheduler
+1. non pre-emptive SJF
+2. pre-emptive SJF
+Enter your choice: 2
+Enter Number of Processes: 2
+Enter Process ID: 1234
+Enter Arrival time: 2
+Enter Burst time: 2
+
+
+Enter Process ID: 5678
+Enter Arrival time: 3
+Enter Burst time: 2
+
+
+-------------------------------------------------------------------------------
+Process ID	Arrival time	Burst time	Turnaround time	Waiting time
+-------------------------------------------------------------------------------
+1234		2.00		2.00		2.00		0.00
+
+5678		3.00		2.00		3.00		1.00
+
+
+				Average		2.50		0.50
+
+gokhul@ubuntu:~/Desktop$ ./fcfs-sjf
+MENU
+1.FCFS
+2.SJF
+3.EXIT
+Enter your choice: 2
+SJF CPU Scheduler
+1. non pre-emptive SJF
+2. pre-emptive SJF
+Enter your choice: 1
+Enter Number of Processes: 2
+Enter Process ID: 1234
+Enter Arrival time: 2
+Enter Burst time: 3
+
+
+Enter Process ID: 5678
+Enter Arrival time: 4
+Enter Burst time: 5
+
+
+-------------------------------------------------------------------------------
+Process ID	Arrival time	Burst time	Turnaround time	Waiting time
+-------------------------------------------------------------------------------
+1234		2.00		3.00		3.00		0.00
+
+5678		4.00		5.00		8.00		3.00
+
+
+				Average		5.50		1.50
+
+*//

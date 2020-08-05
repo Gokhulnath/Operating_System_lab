@@ -1,0 +1,179 @@
+1.Develop an application for getting a name in parent and convert it into uppercase in child using shared memory.
+
+
+#include <sys/ipc.h>
+# define NULL 0
+#include <sys/shm.h>
+#include <sys/types.h>
+# include<unistd.h>
+# include<stdio.h>
+# include<stdlib.h>
+# include<string.h>
+#include <ctype.h>
+#include <sys/wait.h>
+#include <stdio_ext.h>
+// parent writing a char in shared memory and child reads it and prints it.
+int main()
+{
+   int pid;
+   char *a,*b,c;
+   int id,n,i;
+   char name[20];
+   // you can create a shared memory between parent and child here or you can //create inside them separately.
+   id=shmget(111,50,IPC_CREAT | 00666);
+   pid=fork();
+   if(pid>0) 
+   {
+
+      a=shmat(id,NULL,0);
+      printf("Enter the name :");
+      gets(name);
+
+      for(i=0;name[i]!='\n';i++)
+      {
+           a[i]=name[i];
+      }
+      wait(NULL);
+      shmdt(a);
+   }
+   else
+   {
+      sleep(7);
+
+      b=shmat(id,NULL,0);
+      for(i=0;b[i]!=NULL;i++)
+      {
+           printf("%c",toupper(b[i]));
+      }
+      shmdt(b);  
+   }
+   shmctl(id, IPC_RMID,NULL);
+}
+
+2.Develop an client / server application for file transfer using shared memory.
+
+//server.c 
+
+#include <sys/ipc.h>
+# define NULL 0
+#include <sys/shm.h>
+#include <sys/types.h>
+# include<unistd.h>
+# include<stdio.h>
+# include<stdlib.h>
+# include<string.h>
+#include <ctype.h>
+#include <sys/wait.h>
+#include <stdio_ext.h>
+// parent writing a char in shared memory and child reads it and prints it.
+
+int main()
+{
+   int pid;
+   char *a,*b,c,*check,*file;
+   int sh1,sh2,n,i,avail;
+   char filename[20];
+
+    FILE *fptr;
+    printf("Enter the file name to get content : ");
+    scanf(" %s",filename);
+   
+   sh1=shmget(111,50,IPC_CREAT | 00666);
+
+   sh2=shmget(113,50,IPC_CREAT | 00666);  //x,y,n
+   check=shmat(sh2,NULL,0);
+   file=shmat(sh1,NULL,0);
+
+   check[0]='n';
+   while(check[0]!='n');
+   printf("..file name reading \n\n");
+   
+   for(i=0;i<strlen(filename);i++)
+       file[i]=filename[i];
+
+   check[0]='y';
+   while(check[0]!='x');  //busy wait for server response
+   printf("came out of busy wait of server to respond ..!!\n");
+   printf("Content received  << server\n");
+
+   	fptr=fopen("a.txt","w"); //open new dest. file
+   	if(fptr!=NULL)
+   		printf("Ready to write\n");
+    
+    printf("Writing --started...\n");
+    for(int i = 0; i < strlen(file); ++i)
+    {
+    	fputc(file[i],fptr);
+    }
+    fclose(fptr);
+   shmdt(file);
+   shmdt(check);
+   printf("Writing --over..!!\n");
+   shmctl(sh1,IPC_RMID,NULL);
+   shmctl(sh2,IPC_RMID,NULL);
+
+}
+
+//client.c
+//second running terminal
+
+
+
+#include <sys/ipc.h>
+# define NULL 0
+#include <sys/shm.h>
+#include <sys/types.h>
+# include<unistd.h>
+# include<stdio.h>
+# include<stdlib.h>
+# include<string.h>
+#include <ctype.h>
+#include <sys/wait.h>
+#include <stdio_ext.h>
+
+int main()
+{
+   int pid;
+   char *a,*b,*check,*file;
+   int sh1,sh2,n,i,avail;
+   char filename[20],c,buff[200];
+
+    FILE *fptr;
+
+   sh2=shmget(113,50,00666);
+   check=shmat(sh2,NULL,0); 
+   while(check[0]=='n');
+
+   sh1=shmget(111,50,00666); //x,y,n
+
+   printf("Server --->file name recived \n");
+   file=shmat(sh1,NULL,0);
+   
+   fptr=fopen(file,"rw");
+   if(fptr!=NULL)
+      printf("Exists\n");
+
+   printf("Server --->opened and  reading \n");
+
+   c=fgetc(fptr);
+   i=0;
+   while(c!=EOF)
+   {
+      file[i]=c;
+      i++;
+      c=fgetc(fptr);
+   }
+   fclose(fptr);
+   printf("Content in shared memory..!!\n");
+
+   shmdt(file);
+   check[0]='x';
+   printf("Changed the check for client to respond ..!!\n");
+   shmdt(check);
+      
+}
+
+
+
+
+

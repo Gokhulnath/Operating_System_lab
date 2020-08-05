@@ -1,0 +1,528 @@
+
+SYSTEM COMMANDS
+
+============================================================================================================================================
+//FORK
+#include<stdio.h>
+#include<sys/types.h>
+void main()
+{
+int id;
+printf("hello all come and join os world\n");
+id=fork();
+printf("lets develop os\n");
+if(id==0)
+	{
+		printf("child\n");
+	}
+else if(id>0)
+	{
+	printf("parent\n");
+	}
+else
+	printf("unsuccessful\n");
+}
+/* Sample input output
+hello all come and join os world
+lets develop os
+parent
+parent 8600 7566
+lets develop os
+child
+child 8601 5642
+*/
+
+============================================================================================================================================
+
+//EXEC
+#include<stdio.h>
+#include<sys/types.h>
+void main()
+{
+int id;
+printf("hello all come and join os world\n");
+id=fork();
+printf("lets develop os\n");
+if(id==0)
+	{
+		printf("child\n");
+	}
+else if(id>0)
+	{
+	printf("parent\n");
+	execl("/bin/ls","ls",NULL);
+	printf("ls in parent\n");
+}
+else
+	printf("unsuccessful\n");
+
+}
+/* Sample input output
+gokhul@ubuntu:~/Desktop$ ./a.out
+hello all come and join os world
+lets develop os
+parent
+lets develop os
+child
+a.out  hello.c
+*/
+
+============================================================================================================================================
+
+//GETPID GETPPID
+#include<stdio.h>
+#include<sys/types.h>
+void main()
+{
+int id;
+printf("hello all come and join os world\n");
+id=fork();
+printf("lets develop os\n");
+if(id==0)
+	{
+		printf("child\n");
+		printf("child %d %d\n",getpid(),getppid());
+	}
+else if(id>0)
+	{
+	printf("parent\n");
+	printf("parent %d %d\n",getpid(),getppid());
+	}
+else
+	printf("unsuccessful\n");
+
+/* Sample input output
+gokhul@ubuntu:~/Desktop$ ./a.out
+hello all come and join os world
+lets develop os
+parent
+parent 8600 7566
+lets develop os
+child
+child 8601 5642
+*/
+
+============================================================================================================================================
+
+//SLEEP
+#include<stdio.h>
+#include<sys/types.h>
+void main()
+{
+int id;
+printf("hello all come and join os world\n");
+id=fork();
+printf("lets develop os\n");
+if(id==0)
+	{
+		printf("child\n");
+	for(int i=0;i<=20;i++)
+			if(i%2==0)
+				printf("even:%d\n",i);
+	}
+else if(id>0)
+	{
+	sleep(2);
+	printf("parent\n");
+	for(int i=0;i<=20;i++)
+			if(i%2!=0)
+				printf("odd:%d\n",i);
+}
+else
+	printf("unsuccessful\n");
+
+}
+/*sample input output
+gokhul@ubuntu:~/Desktop$ ./a.out
+hello all come and join os world
+lets develop os
+lets develop os
+child
+even:0
+even:2
+even:4
+even:6
+even:8
+even:10
+even:12
+even:14
+even:16
+even:18
+even:20
+parent
+odd:1
+odd:3
+odd:5
+odd:7
+odd:9
+odd:11
+odd:13
+odd:15
+odd:17
+odd:19
+*/
+
+============================================================================================================================================
+============================================================================================================================================
+
+
+
+
+SYSTEM CALLS
+//1.cp
+
+gokhul@ubuntu:~$ cat > file_1
+hello world
+have a nice day
+im os
+^C
+gokhul@ubuntu:~$ cp file_1 file_2
+gokhul@ubuntu:~$ cat file_2
+hello world
+have a nice day
+im os
+gokhul@ubuntu:~$ cp -f file_1 file_2   		//force
+gokhul@ubuntu:~$ cp -i file_1 file_2		//interactive
+cp: overwrite 'file_2'? y
+gokhul@ubuntu:~$ cp -l file_1 file_2		//hard link
+cp: cannot create hard link 'file_2' to 'file_1': File exists
+gokhul@ubuntu:~$ cp -l file_1 file_3
+gokhul@ubuntu:~$ cat file_3
+hello world
+have a nice day
+im os
+gokhul@ubuntu:~$ cat file_2
+hello world
+have a nice day
+im os
+============================================================================================================================================
+
+//2.mv
+gokhul@ubuntu:~$ mv -b file_1 file_2 //like backup
+gokhul@ubuntu:~$ cat file_1
+cat: file_1: No such file or directory
+gokhul@ubuntu:~$ cat file_2
+hello world
+have a nice day
+im os
+gokhul@ubuntu:~$ mv --backup file_2 file_1
+gokhul@ubuntu:~$ cat file_2
+cat: file_2: No such file or directory
+gokhul@ubuntu:~$ cat file_1
+hello world
+have a nice day
+im os
+gokhul@ubuntu:~$ mv -f file_1 file_2		//force
+gokhul@ubuntu:~$ mv -i file_1 file_2		//interactive
+mv: overwrite 'file_2'? y
+
+============================================================================================================================================
+
+//3.ls
+gokhul@ubuntu:~$ ls -a		//all
+.  ..  .bash_history  .bash_logout  .bashrc  .profile  .sudo_as_admin_successful  file_1  file_1~  file_2  file_2~  file_3
+gokhul@ubuntu:~$ ls -R		//recursive
+.:
+file_1  file_1~  file_2  file_2~  file_3
+gokhul@ubuntu:~$ ls -d		//list directories
+.
+gokhul@ubuntu:~$ ls -r		//reverse
+file_3  file_2~  file_2  file_1~  file_1
+
+
+============================================================================================================================================
+
+//4.grep
+gokhul@ubuntu:~$ cat>file_1
+Hello world
+have a nice day
+im os
+^C
+gokhul@ubuntu:~$ grep -i "hello" file_1		//ignore case
+Hello world
+gokhul@ubuntu:~$ grep -v "hello" file_1		//invert
+Hello world
+have a nice day
+im os
+gokhul@ubuntu:~$ grep -w "a" file_1			//match words
+have a nice day
+gokhul@ubuntu:~$ grep "ni" file_1
+have a nice day
+gokhul@ubuntu:~$ grep -r "to" .			//recursive match
+./.bash_logout:# when leaving the console clear the screen to increase privacy
+./.bashrc:# don't put duplicate lines or lines starting with space in the history.
+./.bashrc:# append to the history file, don't overwrite it
+./.bashrc:# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+./.bashrc:# match all files and zero or more directories and subdirectories.
+./.bashrc:# off by default to not distract the user: the focus in a terminal window
+./.bashrc:      # a case would tend to support setf rather than setaf.)
+./.bashrc:# If this is an xterm set the title to user@host:dir
+./.bashrc:    alias ls='ls --color=auto'
+./.bashrc:    #alias dir='dir --color=auto'
+./.bashrc:    #alias vdir='vdir --color=auto'
+./.bashrc:    alias grep='grep --color=auto'
+./.bashrc:    alias fgrep='fgrep --color=auto'
+./.bashrc:    alias egrep='egrep --color=auto'
+./.bashrc:alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+./.bashrc:# You may want to put all your additions into a separate file like
+./.bashrc:# enable programmable completion features (you don't need to enable
+./file_1:Nice to meet you
+./file_1~:hello nice to meet you
+./file_2:hello nice to meet you
+./file_2~:hello nice to meet you
+./file_3:hello nice to meet you
+gokhul@ubuntu:~$ grep -c "a" file_1		//counts matching lines
+1
+
+============================================================================================================================================
+
+//5.cat
+gokhul@ubuntu:~$ cat>file_1
+
+
+Hello world
+
+have a nice day
+im  os^ world
+^C
+gokhul@ubuntu:~$ cat -A file_1		//all
+$
+$
+Hello world$
+$
+have a nice day$
+im^Ios^ world$
+gokhul@ubuntu:~$ cat -b file_1		//number non empty lines
+
+
+     1  Hello world
+
+     2  have a nice day
+     3  im  os^ world
+gokhul@ubuntu:~$ cat -n file_1		//number all lines
+     1
+     2
+     3  Hello world
+     4
+     5  have a nice day
+     6  im  os^ world
+gokhul@ubuntu:~$ cat -T file_1		//displat tab characters
+
+
+Hello world
+
+have a nice day
+im^Ios^ world
+gokhul@ubuntu:~$ cat -v file_1		//show non printing characters
+
+
+Hello world
+
+have a nice day
+im  os^ world
+
+============================================================================================================================================
+
+//6.mkdir
+gokhul@ubuntu:~$ mkdir new -m 666		//specify mode
+gokhul@ubuntu:~$ cd new
+-bash: cd: new: Permission denied
+gokhul@ubuntu:~$ mkdir -p 1new/old/too_old		//create recursively
+gokhul@ubuntu:~$ ls -R 1new
+1new:
+old
+
+1new/old:
+too_old
+
+1new/old/too_old:
+gokhul@ubuntu:~$ mkdir -v 2new			//print message for creation
+mkdir: created directory '2new'
+
+============================================================================================================================================
+
+//7.rm
+gokhul@ubuntu:~$ ls -Rp 1new
+1new:
+file_1  old/
+
+1new/old:
+file_2  too_old/
+
+1new/old/too_old:
+file_3
+gokhul@ubuntu:~$ rm -f old/too_old/file_3		//force
+gokhul@ubuntu:~$ rm -i old/too_old/file_3		//interactive
+rm: cannot remove 'old/too_old/file_3': No such file or directory
+gokhul@ubuntu:~$ rm -i 1new/old/file_2			//interactive
+rm: remove regular empty file '1new/old/file_2'? y
+gokhul@ubuntu:~$ rm -r 1new					//recursive
+gokhul@ubuntu:~$ ls -Rp 1new
+ls: cannot access '1new': No such file or directory
+gokhul@ubuntu:~$ cat>a
+^C
+gokhul@ubuntu:~$ cat>b
+^C
+gokhul@ubuntu:~$ cat>c
+^C
+gokhul@ubuntu:~$ cat>d
+^C
+gokhul@ubuntu:~$ rm -I a b c d			//prompt before removing more than 3 files
+rm: remove 4 arguments? y
+
+============================================================================================================================================
+
+//8.rmdir
+gokhul@ubuntu:~$ ls
+2new  f  file_1  file_1~  file_2  file_2~  file_3  new
+gokhul@ubuntu:~$ rmdir -p 2new		//remove directory and its ancestors
+gokhul@ubuntu:~$ rmdir -v new		//print message for each removal
+rmdir: removing directory, 'new'
+gokhul@ubuntu:~$ ls
+f  file_1  file_1~  file_2  file_2~  file_3
+
+============================================================================================================================================
+
+//9.wc
+gokhul@ubuntu:~$ cat file_3
+hello nice to meet you
+have a nice day
+by the way my name is john
+gokhul@ubuntu:~$ wc -c file_3		//byte count
+66 file_3
+gokhul@ubuntu:~$ wc -m file_3		//character count
+66 file_3
+gokhul@ubuntu:~$ wc -l file_3		//line count
+3 file_3
+gokhul@ubuntu:~$ wc -w file_3		//word count
+16 file_3
+
+============================================================================================================================================
+
+//10.head
+gokhul@ubuntu:~$ head -c 5 file_3		//first num bytes
+hello
+gokhul@ubuntu:~$ head -n 2 file_3	//first num lines
+hello nice to meet you
+have a nice day
+
+============================================================================================================================================
+
+//11.tail
+gokhul@ubuntu:~$ tail -c 5 file_3		//last num bytes
+john
+gokhul@ubuntu:~$ tail -n 1 file_3		//last num lines
+by the way my name is john
+
+============================================================================================================================================
+
+//12.chmod
+gokhul@ubuntu:~$ chmod 444 cse.txt
+gokhul@ubuntu:~$ cat>>cse.txt
+bash: cse.txt: Permission denied
+gokhul@ubuntu:~$ cat cse.txt
+hii nice to meet you
+
+============================================================================================================================================
+
+//13.who
+gokhul@ubuntu:~$ who
+gokhul   tty7         2019-12-07 01:52 (:0)
+
+============================================================================================================================================
+
+//14.pipe
+gokhul@ubuntu:~$ ls -l | tee file1
+total 56
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:20 dept
+-rw-rw-r-- 1 cs1058 cs1058   44 Aug  7  2019 file1
+-rw-rw-r-- 1 cs1058 cs1058   44 Aug  7  2019 file2
+-rw-rw-r-- 1 cs1058 cs1058  117 Aug  7  2019 file3
+-rw-rw-r-- 1 cs1058 cs1058   73 Aug  7  2019 file3.bak
+-rw-rw-r-- 1 cs1058 cs1058   44 Aug  7  2019 file4
+-rw-rw-r-- 1 cs1058 cs1058  410 Aug  7  2019 file5
+-rwxrw-rw- 1 cs1058 cs1058   24 Aug  5 09:32 sample.txt
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:27 ssn
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:34 ssn1
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:35 ssn2
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:36 ssn3
+-rw-rw-r-- 1 cs1058 cs1058  819 Aug  7  2019 t5
+drwxrw-rw- 4 cs1058 cs1058 4096 Aug  5 09:45 unix
+gokhul@ubuntu:~$ more file1
+total 56
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:20 dept
+-rw-rw-r-- 1 cs1058 cs1058   44 Aug  7  2019 file1
+-rw-rw-r-- 1 cs1058 cs1058   44 Aug  7  2019 file2
+-rw-rw-r-- 1 cs1058 cs1058  117 Aug  7  2019 file3
+-rw-rw-r-- 1 cs1058 cs1058   73 Aug  7  2019 file3.bak
+-rw-rw-r-- 1 cs1058 cs1058   44 Aug  7  2019 file4
+-rw-rw-r-- 1 cs1058 cs1058  410 Aug  7  2019 file5
+-rwxrw-rw- 1 cs1058 cs1058   24 Aug  5 09:32 sample.txt
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:27 ssn
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:34 ssn1
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:35 ssn2
+drwxrw-rw- 2 cs1058 cs1058 4096 Aug  5 09:36 ssn3
+-rw-rw-r-- 1 cs1058 cs1058  819 Aug  7  2019 t5
+drwxrw-rw- 4 cs1058 cs1058 4096 Aug  5 09:45 unix
+
+============================================================================================================================================
+
+//15.sed
+gokhul@ubuntu:~$ cat>append
+hii
+nice to meet you
+hello world
+^C
+gokhul@ubuntu:~$ cat>script
+a\
+
+^C
+gokhul@ubuntu:~$ sed -f script append
+hii
+
+nice to meet you
+
+hello world
+
+============================================================================================================================================
+
+//16.awk
+gokhul@ubuntu:~$cat>workers.txt
+george white 18
+mark red 18.10                                          
+mary blue 10.89                                         
+dan black 12.00                                         
+susan green 18.00                                       
+nora brown 17.20                                        
+bruce purple 12.20                                      
+john gray 11.00                                         
+bob gold 15.00                                          
+steve silver 14.67                                      
+^C                                                      
+//print the total number of lines        
+gokhul@ubuntu:~$awk "END{print NR}" workers.txt                                            
+11                                                                                                       
+
+//print the number of fields                                                                         
+gokhul@ubuntu:~$awk "END{print NF}" workers.txt                                            
+3                                                                                                        
+
+//print the last field of last line  
+gokhul@ubuntu:~$awk 'END{print $NF}' workers.txt                                           
+14.67                                                                                                    
+
+//print thr last field of each line      
+gokhul@ubuntu:~$awk '{print $3}' workers.txt                                               
+18                                                                                                       
+18.10                                                                                                    
+10.89                                                                                                    
+12.00                                                                                                    
+18.00                                                                                                    
+17.20                                                                                                    
+12.20                                                                                                    
+11.00                                                                                                    
+15.00                                                                                                    
+14.67  
+
+
+===============================================================================================================================================                                                             
